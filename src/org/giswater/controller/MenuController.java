@@ -229,15 +229,10 @@ public class MenuController {
         	dbPanel.setPassword("");
         }
         
-        // Initialize Database?
-        // Boolean initDb = Boolean.parseBoolean(MainDao.getGswProperties().get("INIT_DB", "false"));	    
-        Boolean initDb = true;    
-        if (initDb){
-        	if (MainDao.initializeDatabase()){
-        		dbPanel.setDatabase(MainDao.getInitDb());
-        	}
-       		//MainDao.getGswProperties().put("INIT_DB", "false");
-        }
+        // Initialize Database
+    	if (MainDao.initializeDatabase()){
+    		dbPanel.setDatabase(MainDao.getDb());
+    	}
         
         // Autoconnect?
         Boolean autoConnect = Boolean.parseBoolean(prop.get("AUTOCONNECT_POSTGIS"));

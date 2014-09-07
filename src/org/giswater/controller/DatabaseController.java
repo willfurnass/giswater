@@ -129,6 +129,8 @@ public class DatabaseController {
 	        gswProp.put("POSTGIS_BIN", binPath);
 	        Utils.getLogger().info("Connection successful");
 	        Utils.getLogger().info("Postgre data directory: " + dataPath);	
+	        
+	    	// Check Postgre and Postgis versions	        
 	    	Utils.getLogger().info("Postgre version: " + MainDao.checkPostgreVersion());
         	String postgisVersion = MainDao.checkPostgisVersion();	        
         	if (postgisVersion.equals("")){
@@ -146,9 +148,7 @@ public class DatabaseController {
 			// Hecras panel
 			mainFrame.hecRasFrame.getPanel().setSchemaModel(MainDao.getSchemas("HECRAS"));
 			mainFrame.hecRasFrame.getPanel().enableButtons(true);
-			
-			// TODO: Update pg_pass.conf
-			// updatePgPass();
+
 		} 
 		else{
 			mainFrame.hecRasFrame.getPanel().setSchemaModel(null);

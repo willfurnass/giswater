@@ -195,7 +195,6 @@ public class EpaPanel extends JPanel implements ActionListener {
 	}
 	
 	public void enableRunAndImport(boolean enable) {
-		chkSubcatchments.setEnabled(enable);
 		chkExec.setEnabled(enable);
 		lblFileRpt.setEnabled(enable);
 		txtFileRpt.setEnabled(enable);
@@ -264,6 +263,10 @@ public class EpaPanel extends JPanel implements ActionListener {
 		}
 		return elem;
 	}	
+	
+	public void setSubcatchmentVisible(boolean visible) {
+		chkSubcatchments.setVisible(visible);	
+	}
 	
 
 	// Panel DBF
@@ -427,7 +430,6 @@ public class EpaPanel extends JPanel implements ActionListener {
 		panel_4.add(chkExport, "cell 0 6 2 1");
 		
 		chkSubcatchments = new JCheckBox();
-		chkSubcatchments.setVisible(false);
 		chkSubcatchments.setText(BUNDLE.getString("EpaPanel.chckbxExportSubcatchments.text"));
 		panel_4.add(chkSubcatchments, "cell 2 6");
 

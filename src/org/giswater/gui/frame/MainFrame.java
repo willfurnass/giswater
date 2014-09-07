@@ -387,10 +387,12 @@ public class MainFrame extends JFrame implements ActionListener{
 		swmmFrame.getPanel().setDesignButton("Raingage", "showRaingage");
 		swmmFrame.getPanel().setOptionsButton("Options", "showInpOptions");
 		swmmFrame.getPanel().setReportButton("Report options", "showReport");
+		swmmFrame.getPanel().setSubcatchmentVisible(true);
 		epanetFrame.setTitle("EPANET");
 		epanetFrame.getPanel().setDesignButton("Times values", "showTimesValues");
 		epanetFrame.getPanel().setOptionsButton("Options", "showInpOptionsEpanet");
 		epanetFrame.getPanel().setReportButton("Report options", "showReportEpanet");
+		epanetFrame.getPanel().setSubcatchmentVisible(false);
 
         // Get info from properties
 		getMainParams("MAIN");

@@ -155,7 +155,7 @@ public class ModelPostgis extends Model {
             // Overwrite INP file if already exists?
             if (fileInp.exists()){
                 String owInp = MainDao.getPropertiesFile().get("OVERWRITE_INP", "true").toLowerCase();
-	            if (owInp.equals("false")){
+	            if (owInp.equals("false")) {
 	                String msg = "Selected file already exists:\n"+fileInp.getAbsolutePath()+"\nDo you want to overwrite it?";
 	            	int res = Utils.confirmDialog(msg);             
 	            	if (res == JOptionPane.NO_OPTION){
@@ -167,7 +167,7 @@ public class ModelPostgis extends Model {
             // Get INP template File
             String templatePath = MainDao.getFolderConfig() + softwareVersion + ".inp";
             File fileTemplate = new File(templatePath);
-            if (!fileTemplate.exists()){
+            if (!fileTemplate.exists()) {
             	Utils.showMessage("inp_error_notfound", fileTemplate.getAbsolutePath());
             	return false;
             }
@@ -197,7 +197,7 @@ public class ModelPostgis extends Model {
             rs.close();
             
             // Subcatchment function
-            if (isSubcatchmentSelected){
+            if (isSubcatchmentSelected) {
             	Utils.getLogger().info("Process subcatchments");
             	
             	stat = MainDao.getConnectionPostgis().createStatement();
@@ -218,10 +218,10 @@ public class ModelPostgis extends Model {
 
             // Open INP file?
             String openInp = MainDao.getPropertiesFile().get("OPEN_INP").toLowerCase();
-            if (openInp.equals("always")){
+            if (openInp.equals("always")) {
             	Utils.openFile(fileInp.getAbsolutePath());
             }
-            else if (openInp.equals("ask")){
+            else if (openInp.equals("ask")) {
                 String msg = Utils.getBundleString("inp_end") + "\n" + fileInp.getAbsolutePath() + "\n" + Utils.getBundleString("view_file");
             	int res = Utils.confirmDialog(msg);             
             	if (res == JOptionPane.YES_OPTION){
@@ -300,7 +300,7 @@ public class ModelPostgis extends Model {
 	                size = mHeader.get(sKey);
 		            parseField(rowData, sKey, size);
 	            	i++;
-	            	if (i%6 == 0 && i%24 != 0){
+	            	if (i%6 == 0 && i%24 != 0) {
 	    	            raf.writeBytes("\r\n");
 	    	            parseField(rowData, sKeyId, sizeId);		    	            
 	            	}
@@ -410,18 +410,18 @@ public class ModelPostgis extends Model {
         File exeFile = new File(exeCmd);
         
 		// If file doesn't exists, append application path (path was relative)
-		if (!exeFile.exists()){
+		if (!exeFile.exists()) {
 			exeCmd = Utils.getAppPath() + exeCmd;	
 	        exeFile = new File(exeCmd);			
 		}
         
         // Check anyway if exists
-		if (!exeFile.exists()){
+		if (!exeFile.exists()) {
 			String msg = Utils.getBundleString("software_not_found") + " " + exeCmd + "\n" + 
 				Utils.getBundleString("software_path");
 			exeCmd = JOptionPane.showInputDialog(null, msg);
             exeFile = new File(exeCmd);
-    		if (!exeFile.exists()){            
+    		if (!exeFile.exists()) {            
     			Utils.showError("inp_error_notfound", exeCmd);
     			return false;
     		}
@@ -429,18 +429,18 @@ public class ModelPostgis extends Model {
     		MainDao.savePropertiesFile();
 		}
 
-        if (!fileInp.exists()){
+        if (!fileInp.exists()) {
 			Utils.showError("inp_error_notfound", fileInp.getAbsolutePath());     
 			return false;
         }
         
         // Overwrite RPT file if already exists?
-        if (fileRpt.exists()){
+        if (fileRpt.exists()) {
             String owRpt = MainDao.getPropertiesFile().get("OVERWRITE_RPT", "true").toLowerCase();
             if (owRpt.equals("false")){
                 String msg = "Selected file already exists:\n"+fileRpt.getAbsolutePath()+"\nDo you want to overwrite it?";
             	int res = Utils.confirmDialog(msg);             
-            	if (res == JOptionPane.NO_OPTION){
+            	if (res == JOptionPane.NO_OPTION) {
                    	return false;
                 }   
             }  
@@ -471,10 +471,10 @@ public class ModelPostgis extends Model {
 
         // Open RPT file
         String openFile = MainDao.getPropertiesFile().get("OPEN_RPT").toLowerCase();
-        if (openFile.equals("always")){
+        if (openFile.equals("always")) {
         	Utils.openFile(fileRpt.getAbsolutePath());
         }
-        else if (openFile.equals("ask")){    
+        else if (openFile.equals("ask")) {    
             String msg = Utils.getBundleString("inp_end") + "\n" + fileRpt.getAbsolutePath() + "\n" + Utils.getBundleString("view_file");
         	int res = Utils.confirmDialog(msg);             
         	if (res == JOptionPane.YES_OPTION){
@@ -497,10 +497,13 @@ public class ModelPostgis extends Model {
     	ModelPostgis.projectName = projectName;
 
     	// Ask confirmation to user
-       	int res = Utils.confirmDialog("import_sure");    		
-       	if (res == JOptionPane.NO_OPTION){
-       		return false;
-    	}    	
+        String importRpt = MainDao.getPropertiesFile().get("AUTO_IMPORT_RPT", "false").toLowerCase();
+        if (importRpt.equals("false")) {
+           	int res = Utils.confirmDialog("import_sure");    		
+           	if (res == JOptionPane.NO_OPTION) {
+           		return false;
+        	}    	
+        }  	
 
        	// Check if we want to overwrite previous results
         Boolean overwrite = Boolean.parseBoolean(iniProperties.get("IMPORT_OVERWRITE", "false"));
@@ -508,10 +511,10 @@ public class ModelPostgis extends Model {
         
     	// Check if Project Name exists in rpt_result_id
     	boolean exists = false;
-    	if (existsProjectName()){
+    	if (existsProjectName()) {
     		exists = true;
             if (!overwrite){
-            	res = Utils.confirmDialog("project_exists");    		
+            	int res = Utils.confirmDialog("project_exists");    		
             	if (res == JOptionPane.NO_OPTION){
             		return false;
             	}
@@ -519,16 +522,14 @@ public class ModelPostgis extends Model {
     	}
     	
 		// Open RPT file
-    	if (!openRptFile()){
+    	if (!openRptFile()) {
     		return false;
     	}
-		
     	Utils.getLogger().info("Getting contents of .rpt file...");
-    	if (!getRptContent()){
+    	if (!getRptContent()) {
     		return false;
     	}
     	Utils.getLogger().info("Getting contents completed");
-    	
         
         // Get info from rpt_target into memory
         TreeMap<Integer, RptTarget> targets = new TreeMap<Integer, RptTarget>();
@@ -559,14 +560,15 @@ public class ModelPostgis extends Model {
             boolean ok = false;
             boolean processTarget = true;
             boolean continueTarget;
-            if (softwareName.equals("SWMM")){
+            if (softwareName.equals("SWMM")) {
             	ok = processRpt(rpt);
-				if (abortRptProcess){
+				if (abortRptProcess) {
 					return false;
 				}
             } 
-            else{
-        		if (rpt.getId() >= 40){
+            else {
+            	// Target node or arc
+        		if (rpt.getId() >= 40) {
         			processTarget = false;
         			continueTarget = true;
         			if (overwrite){
@@ -574,67 +576,69 @@ public class ModelPostgis extends Model {
         				Utils.logSql(sql);
         				MainDao.executeUpdateSql(sql);
         			}
-        			else{
-        				if (exists){
+        			else {
+        				if (exists) {
         					sql = "DELETE FROM "+MainDao.getSchema()+"."+rpt.getTable() + 
         						" WHERE result_id = '"+projectName+"'";
         					Utils.logSql(sql);
         					MainDao.executeUpdateSql(sql);
         				}
 		    		}            			
-        			while (continueTarget){
+        			while (continueTarget) {
             			insertSql = "";            				
         				ok = processRptEpanet(rpt);
-        				if (abortRptProcess){
+        				if (abortRptProcess) {
         					return false;
         				}
         	        	if (ok){
-        		    		if (!insertSql.equals("")){
+        		    		if (!insertSql.equals("")) {
         		            	if (softwareName.equals("EPANET") && rpt.getId() >= 40){
         		            		firstLine = firstLine.substring(15, 24).trim(); 
         		            		sql = "UPDATE "+MainDao.getSchema()+"."+rpt.getTable() + 
         		            			" SET time = '"+firstLine+"' WHERE time is null;";
         		            		insertSql+= sql;
-        		            	}          	
-        			    		if (!MainDao.executeUpdateSql(insertSql)){
+        		            	}     
+        		            	Utils.logSql(insertSql);
+        			    		if (!MainDao.executeUpdateSql(insertSql)) {
         							return false;
         						}
         		    		}
         	        	}
         				continueTarget = (lineNumber > 0);            	        	
         			}
+        			MainDao.commit();
         		}
-        		else{
+        		// Target different than node or arc
+        		else {
     				ok = processRptEpanet(rpt);
-    				if (abortRptProcess){
+    				if (abortRptProcess) {
     					return false;
     				}    				
         		}
             }
             
-            // EPASWMM
-            if (!continueProcess){
+            if (!continueProcess) {
             	return false;
             }
             
-        	if (ok && processTarget){
+        	if (ok && processTarget) {
     			if (overwrite){
     				sql = "DELETE FROM "+MainDao.getSchema()+"."+rpt.getTable();
     				Utils.logSql(sql);
     				MainDao.executeUpdateSql(sql);
     			}
-    			else{
-    				if (exists){
+    			else {
+    				if (exists) {
     					sql = "DELETE FROM "+MainDao.getSchema()+"."+rpt.getTable() + 
     						" WHERE result_id = '"+projectName+"'";
     					Utils.logSql(sql);
     					MainDao.executeUpdateSql(sql);
     				}
 	    		} 
-	    		if (!insertSql.equals("")){
+	    		if (!insertSql.equals("")) {
 	    			Utils.logSql(insertSql);	            	
-		    		boolean status = MainDao.executeUpdateSql(insertSql);
-		    		if (!status){
+		    		boolean status = MainDao.executeUpdateSql(insertSql, true);
+		    		if (!status) {
 		    			// TODO: i18n
 		    			String msg = "Import aborted. Some data values are not valid in current target: ";
 		    			msg+= "\n" + rpt.getDescription();
@@ -644,23 +648,18 @@ public class ModelPostgis extends Model {
 		    		}
 	    		}
         	} 
-        	else{
+        	else {
         		Utils.getLogger().info("Target not found: " + rpt.getId() + " - " + rpt.getDescription());
+        		if (softwareName.equals("EPANET") && rpt.getId() == 10) {
+        			sql = "INSERT INTO "+MainDao.getSchema()+"."+rpt.getTable()+ " (result_id) VALUES ('"+projectName+"')";
+        			MainDao.executeUpdateSql(sql, true);
+        		}
         	}
         	
         } // end iterations over targets (while)
 
         // Insert into result_selection
    		MainDao.setResultSelect(MainDao.getSchema(), "result_selection", projectName);
-        
-        // Commit transaction ONLY if everything ok
-        try {
-        	if (!MainDao.getConnectionPostgis().getAutoCommit()){
-        		MainDao.getConnectionPostgis().commit();
-        	}
-		} catch (SQLException e) {
-            Utils.showError(e, sql);
-		}
         
         // Ending message
         Utils.showMessage("import_end");                
@@ -693,7 +692,7 @@ public class ModelPostgis extends Model {
 		try {
 			long fileLength = rat.length();
 			lineNumber = 0;
-			while (rat.getFilePointer() < fileLength){
+			while (rat.getFilePointer() < fileLength) {
 				lineNumber++;				
 				line = rat.readLine().trim();	
 				fileContent.add(line);
@@ -735,8 +734,8 @@ public class ModelPostgis extends Model {
 		Utils.getLogger().info("Target: " + rpt.getId() + " - " + rpt.getDescription());
 		
 		// Read lines until rpt.getDescription() is found		
-		while (!found){
-			if (lineNumber >= totalLines){
+		while (!found) {
+			if (lineNumber >= totalLines) {
 				lineNumber = 0;
 				return false;
 			}
@@ -744,14 +743,14 @@ public class ModelPostgis extends Model {
 			line = readLine();
 			if (line.length() >= rpt.getDescription().length()){
 				aux = line.substring(0, rpt.getDescription().length());
-				if (aux.equals(rpt.getDescription())){
+				if (aux.equals(rpt.getDescription())) {
 					found = true;
 					Utils.getLogger().info("Target line number: " + lineNumber);						
 				}
 			}
 		}
 		
-        if (rpt.getType() == 3 || rpt.getType() == 5 || rpt.getType() == 6){
+        if (rpt.getType() == 3 || rpt.getType() == 5 || rpt.getType() == 6) {
         	getPollutants(rpt);
         }
 		
@@ -760,20 +759,20 @@ public class ModelPostgis extends Model {
 			lineNumber++;
 			line = readLine();
 			// Check if we have reached next Target
-			if (line.contains("No ")){
+			if (line.contains("No ")) {
 				return false;
 			}
 		}		
 		
 		// Get Database fields related to this Target
-		if (rpt.getColumnCount() == 0){
+		if (rpt.getColumnCount() == 0) {
 			String sql = "SELECT * FROM "+MainDao.getSchema()+"."+rpt.getTable();
 	        PreparedStatement ps;
 			try {
 				ps = MainDao.getConnectionPostgis().prepareStatement(sql);
 		        ResultSet rs = ps.executeQuery();
 		        ResultSetMetaData rsmd = rs.getMetaData();	
-		        for (int i=1; i <= rsmd.getColumnCount(); i++){
+		        for (int i=1; i <= rsmd.getColumnCount(); i++) {
 		        	rpt.addColumnName(rsmd.getColumnName(i));
 		        	rpt.addColumnType(rsmd.getColumnType(i));
 		        }
@@ -786,13 +785,13 @@ public class ModelPostgis extends Model {
 		// Read following lines until blank line is found
 		tokensList = new ArrayList<ArrayList<String>>();		
 		continueProcess = parseLines(rpt);
-		if (rpt.getType() == 2 && rpt.getId() != 10){
+		if (rpt.getType() == 2 && rpt.getId() != 10) {
 			processTokens(rpt);
 		}
-		else if (rpt.getType() == 2 && rpt.getId() == 10){
+		else if (rpt.getType() == 2 && rpt.getId() == 10) {
 			processTokensAnalysis(rpt);
 		}
-		else if (rpt.getType() == 3){
+		else if (rpt.getType() == 3) {
 			processTokens3(rpt);
 		}
 		
@@ -805,7 +804,7 @@ public class ModelPostgis extends Model {
 		
 		String line = "";
 		int jumpLines;
-		if (rpt.getType() == 3){			
+		if (rpt.getType() == 3) {			
 			lineNumber--;
 			line = readLine();		
 		} 
@@ -820,7 +819,7 @@ public class ModelPostgis extends Model {
 		boolean blankLine = (line.length() == 0);
 		if (!blankLine){
 			Scanner scanner = new Scanner(line);
-			if (rpt.getType() == 3 || rpt.getType() == 6){
+			if (rpt.getType() == 3 || rpt.getType() == 6) {
 				int jumpScanner	= (rpt.getType() == 3) ? 1 : 4;
 				for (int i = 0; i < jumpScanner; i++) {
 					scanner.next();						
@@ -849,42 +848,42 @@ public class ModelPostgis extends Model {
 			blankLine = (line.length()==0);
 			if (!blankLine){
 				Scanner scanner = new Scanner(line);
-				if (rpt.getType() == 1){
+				if (rpt.getType() == 1) {
 					parseLine1(scanner, false);
 					result = processTokens(rpt);
 					if (!result){
 						return false;
 					}
 				}		
-				else if (rpt.getType() == 2){					
+				else if (rpt.getType() == 2) {					
 					parseLine2(scanner, rpt, true);
 				}
-				else if (rpt.getType() == 3){	
+				else if (rpt.getType() == 3) {	
 					tokens = new ArrayList<String>();
 					parseLine2(scanner, rpt, false);
 					tokensList.add(tokens);
 				}					
-				else if (rpt.getType() == 4){					
+				else if (rpt.getType() == 4) {					
 					parseLine1(scanner, true);
 					processTokens(rpt);							
 				}	
-				else if (rpt.getType() == 5){					
+				else if (rpt.getType() == 5) {					
 					tokens = new ArrayList<String>();
 					parseLine1(scanner, false);
 					processTokens5(rpt);						
 				}				
-				else if (rpt.getType() == 6){					
+				else if (rpt.getType() == 6) {					
 					tokens = new ArrayList<String>();
 					parseLine1(scanner, false);
 					processTokens6(rpt);						
 				}			
-				else if (rpt.getType() == 7){					
+				else if (rpt.getType() == 7) {					
 					tokens = new ArrayList<String>();
 					parseLine1(scanner, false);
 					processTokens6(rpt);						
 				}							
 			}
-			if (abortRptProcess){
+			if (abortRptProcess) {
 				return false;
 			}
 		}		
@@ -897,7 +896,6 @@ public class ModelPostgis extends Model {
 	// Parse values of current line
 	private static void parseLine1(Scanner scanner, boolean together) {
 		
-		// Parse line
 		tokens = new ArrayList<String>();	
 		String token = "";
 		while (scanner.hasNext()){
@@ -919,16 +917,15 @@ public class ModelPostgis extends Model {
 	// Parse values of current line that contains ".." in it
 	private static void parseLine2(Scanner scanner, RptTarget rpt, boolean together) {
 		
-		// Parse line
 		String token;
 		boolean valid = false;
 		String aux = "";
 		int numTokens = 0;
-		while (scanner.hasNext()){
+		while (scanner.hasNext()) {
 			token = scanner.next();
 			if (valid == true){
 				numTokens++;
-				if (numTokens <= rpt.getTokens()){
+				if (numTokens <= rpt.getTokens()) {
 					if (together){
 						aux += token + " ";
 					}
@@ -937,11 +934,11 @@ public class ModelPostgis extends Model {
 					}
 				}
 			}
-			if (token.contains("..")){
+			if (token.contains("..")) {
 				valid = true;
 			}
 		}
-		if (valid == true && together){
+		if (valid == true && together) {
 			tokens.add(aux.trim());			
 		}	
 		
@@ -953,13 +950,13 @@ public class ModelPostgis extends Model {
 		String fields = "result_id, ";
 		String values = "'"+projectName+"', ";
 		if (softwareName.equals("EPANET")){
-			if (tokens.size() < rpt.getColumnCount() - 4){
+			if (tokens.size() < 2){
 				Utils.logError("Line not valid");
 				return true;
 			}
 		}
 		int j;
-		for (int i=0; i<tokens.size(); i++){
+		for (int i=0; i<tokens.size(); i++) {
 			j = i + 3;
 			switch (rpt.getColumnType(j)) {
 			case Types.NUMERIC:
@@ -1041,12 +1038,12 @@ public class ModelPostgis extends Model {
 		// No permetre tipus String (peta a Subcatchment)
 		try{
 			Integer.parseInt(tokens.get(0));
-		} catch (NumberFormatException e){
+		} catch (NumberFormatException e) {
 			return;
 		}
 		
 		// Iterate over pollutants
-		if (tokens.size() > pollutants.size()){
+		if (tokens.size() > pollutants.size()) {
 			for (int i=0; i<pollutants.size(); i++) {
 				units = Double.valueOf(tokens.get(i + 1));
 				values = fixedValues + "'"+pollutants.get(i)+"', "+units;
@@ -1068,7 +1065,7 @@ public class ModelPostgis extends Model {
 		Double units;
 	
 		// If found separator o resume line skip them
-		if (tokens.size() < 5 || tokens.get(0).equals("System")){
+		if (tokens.size() < 5 || tokens.get(0).equals("System")) {
 			return;
 		}
 		
@@ -1112,7 +1109,7 @@ public class ModelPostgis extends Model {
 	        rs.close();
 	        int k = 0;
 	        int size = tokens.size();   
-	        for (int j=3; j<rsmd.getColumnCount(); j++){
+	        for (int j=3; j<rsmd.getColumnCount(); j++) {
 	        	int i = j - 3 - k;
         		// Check if we have to process this field
 	        	String fieldName = rsmd.getColumnName(j);
@@ -1159,7 +1156,6 @@ public class ModelPostgis extends Model {
 	}
 
 	
-	
 	// Epanet
 	private static boolean processRptEpanet(RptTarget rpt) {
 
@@ -1177,9 +1173,9 @@ public class ModelPostgis extends Model {
 			}
 			lineNumber++;				
 			line = readLine();
-			if (line.length() >= rpt.getDescription().length()){
+			if (line.length() >= rpt.getDescription().length()) {
 				aux = line.substring(0, rpt.getDescription().length()).toLowerCase();
-				if (aux.equals(rpt.getDescription().toLowerCase())){
+				if (aux.equals(rpt.getDescription().toLowerCase())) {
 					found = true;
 					firstLine = line;						
 					Utils.getLogger().info("Target line number: " + lineNumber);						
@@ -1205,7 +1201,7 @@ public class ModelPostgis extends Model {
 				ps = MainDao.getConnectionPostgis().prepareStatement(sql);
 		        ResultSet rs = ps.executeQuery();
 		        ResultSetMetaData rsmd = rs.getMetaData();	
-		        for (int i=1; i <= rsmd.getColumnCount(); i++){
+		        for (int i=1; i <= rsmd.getColumnCount(); i++) {
 		        	rpt.addColumnName(rsmd.getColumnName(i));
 		        	rpt.addColumnType(rsmd.getColumnType(i));
 		        }
@@ -1217,15 +1213,15 @@ public class ModelPostgis extends Model {
 		
 		// Read following lines until blank line is found
 		tokensList = new ArrayList<ArrayList<String>>();
-		if (rpt.getType() == 7){
+		if (rpt.getType() == 7) {
 			parseLinesHydraulic(rpt);
 		}
 		else{
 			parseLines(rpt);
-			if (rpt.getType() == 2 && rpt.getId() != 10){
+			if (rpt.getType() == 2 && rpt.getId() != 10) {
 				processTokens(rpt);
 			}
-			else if (rpt.getType() == 2 && rpt.getId() == 10){
+			else if (rpt.getType() == 2 && rpt.getId() == 10) {
 				processTokensInputData(rpt);
 			}
 		}
@@ -1241,7 +1237,7 @@ public class ModelPostgis extends Model {
 		tokens = new ArrayList<String>();			
 		boolean blankLine = false;		
 		int numBlankLines = 0;
-		while (numBlankLines < 2){
+		while (numBlankLines < 2) {
 			try {
 				lineNumber++;
 				String line = readLine();
@@ -1321,7 +1317,7 @@ public class ModelPostgis extends Model {
 	        PreparedStatement ps = MainDao.getConnectionPostgis().prepareStatement(sql);
 	        ResultSet rs = ps.executeQuery();
 	        ResultSetMetaData rsmd = rs.getMetaData();	
-	        if (tokens.size() > NORMAL_NUM_FIELDS){
+	        if (tokens.size() > NORMAL_NUM_FIELDS) {
 	        	String msg = "Warning: Water quality result data will be not imported. Do you want continue?";
 	        	int res = Utils.confirmDialog(msg);   
 	        	if (res != 0){
@@ -1331,13 +1327,13 @@ public class ModelPostgis extends Model {
 	        	ignoreWaterFields = true;
 	        }
 	        System.out.println(rsmd.getColumnCount());    // 22
-        	if (tokens.size() < rsmd.getColumnCount() - 4){
+        	if (tokens.size() < rsmd.getColumnCount() - 4) {
         		Utils.logError("Line not valid");
         		return true;
         	}
 	        rs.close();
 	        int k = 0;
-	        for (int j=3; j<rsmd.getColumnCount() + k; j++){
+	        for (int j=3; j<rsmd.getColumnCount() + k; j++) {
 	        	int i = j - 3;
         		// Check if we have to process this field
 	        	String fieldName = rsmd.getColumnName(j - k);
@@ -1390,4 +1386,5 @@ public class ModelPostgis extends Model {
 		return line;
 	}
 
+	
 }
