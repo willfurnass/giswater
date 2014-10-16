@@ -187,10 +187,6 @@ public class MainDao {
         // Start Postgis portable?
         Boolean autostart = Boolean.parseBoolean(prop.get("AUTOSTART_POSTGIS", "true"));
         if (autostart){
-//        	stopPostgis = Utils.portAvailable(5431);
-//        	if (stopPostgis){
-//        		executePostgisService("start");
-//        	}
         	executePostgisService("start");
         }	    
         
@@ -229,8 +225,17 @@ public class MainDao {
 			return;
 		}
 		String data = folder + "data";
-		String exec = "start \"PostgreSQL server running\" \""+path+"\" "+service+" -D \""+data+"\"";
-		Utils.execService(exec);
+		
+		// Set content of .vbs file
+		String aux = "Set wshShell = CreateObject(\"WScript.Shell\")";
+		aux+= "\nwshShell.Run \""+path+" start -D "+data+"\", 0, False";
+		Utils.getLogger().info(aux);
+		aux+= "\nSet wshShell = Nothing";
+
+        // Fill and execute .vbs File	
+		File vbsFile = new File( Utils.getLogFolder() + "hide.vbs");        
+		Utils.fillFile(vbsFile, aux);    		
+		Utils.openFile(vbsFile.getAbsolutePath());
 		
 	}
 		
@@ -682,7 +687,8 @@ public class MainDao {
     }	
 	
 	
-	private static boolean checkQuery(String sql){
+	private static boolean checkQuery(String sql) {
+		
 		boolean check = false;
         try {
             Statement stat = connectionPostgis.createStatement();
@@ -694,23 +700,28 @@ public class MainDao {
         	Utils.showError(e);
         }		
         return check;
+        
 	}
 	
 	
-	private static String stringQuery(String sql){
+	private static String stringQuery(String sql) {
+		
     	String value = "";
         try {
             Statement stat = connectionPostgis.createStatement();
-            ResultSet rs = stat.executeQuery(sql);        	
-			if (rs.next()){
-				value = rs.getString(1);
-			}
-	        rs.close();	
+            ResultSet rs = stat.executeQuery(sql);      
+            if (rs != null) {
+				if (rs.next()){
+					value = rs.getString(1);
+				}
+		        rs.close();	
+            }
 	        stat.close();
 		} catch (SQLException e) {
         	Utils.logError(e.getMessage());
 		}
         return value;
+        
 	}	
 	
 	
@@ -750,6 +761,12 @@ public class MainDao {
     public static boolean checkDatabase(String dbName) {
         String sql = "SELECT 1 FROM pg_database WHERE datname = '"+dbName+"'";
         return checkQuery(sql);
+    } 
+    
+    // Check if schema exists
+    public static boolean checkSchema(String schemaName) {
+    	String sql = "SELECT schema_name FROM information_schema.schemata WHERE schema_name = '"+schemaName+"'";
+    	return checkQuery(sql);
     } 
     
     
@@ -976,7 +993,7 @@ public class MainDao {
 		
 		boolean status = false;
 		String sql = "CREATE schema "+schemaName;
-		if (!executeUpdateSql(sql, true, true)){
+		if (!executeUpdateSql(sql, false, true)){
 			rollback();
 			return status;	
 		}
@@ -994,20 +1011,24 @@ public class MainDao {
 			content = content.replace("SRID_VALUE", srid);
 			Utils.logSql(content);
 			
-			if (executeSql(content, true)){
-			
+			if (executeSql(content, false)) {
 				filePath = folderRoot+"sql"+File.separator+softwareName+"_value_domain.sql";
 		    	content = Utils.readFile(filePath);
 				content = content.replace("SCHEMA_NAME", schemaName);		   
 				Utils.logSql(content);
-				if (executeUpdateSql(content, true)){
-					filePath = folderRoot+"sql"+File.separator+softwareName+"_functrigger.sql";
+				if (executeSql(content, false)) {
+					filePath = folderRoot+"sql"+File.separator+softwareName+"_value_default.sql";
 			    	content = Utils.readFile(filePath);
 					content = content.replace("SCHEMA_NAME", schemaName);
 					Utils.logSql(content);
-					status = executeUpdateSql(content, true);
+					if (executeSql(content, false)) {
+						filePath = folderRoot+"sql"+File.separator+softwareName+"_functrigger.sql";
+				    	content = Utils.readFile(filePath);
+						content = content.replace("SCHEMA_NAME", schemaName);
+						Utils.logSql(content);
+						status = executeSql(content, false);
+					}					
 				}
-		    	
 			}
 			
         } catch (FileNotFoundException e) {

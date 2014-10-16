@@ -339,9 +339,12 @@ public class MainController{
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             fileInp = chooser.getSelectedFile();
             String path = fileInp.getAbsolutePath();
-            if (path.lastIndexOf(".") == -1) {
-                path += ".inp";
-                fileInp = new File(path);
+            if (path != null && path.length() >= 4) {  
+                String ext = path.substring(path.length() - 4).toLowerCase();
+                if (!ext.equals(".inp")) {
+                    path += ".inp";
+                    fileInp = new File(path);
+                }
             }
             view.setFileInp(fileInp.getAbsolutePath());            
         }
@@ -362,9 +365,12 @@ public class MainController{
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             fileRpt = chooser.getSelectedFile();
             String path = fileRpt.getAbsolutePath();
-            if (path.lastIndexOf(".") == -1) {
-                path += ".rpt";
-                fileRpt = new File(path);
+            if (path != null && path.length() >= 4) {  
+                String ext = path.substring(path.length() - 4).toLowerCase();
+                if (!ext.equals(".rpt")) {
+                    path += ".rpt";
+                    fileRpt = new File(path);
+                }
             }
             view.setFileRpt(fileRpt.getAbsolutePath());
         }
@@ -849,35 +855,43 @@ public class MainController{
 	}
 	
 	
-	public void acceptProject(){
+	public void acceptProject() {
 		
 		// SRID
 		String sridValue = projectPanel.getSrid();
-		if (sridValue.equals("-1")){
+		if (sridValue.equals("-1")) {
 			Utils.showMessage(projectPanel, Utils.getBundleString("srid_select"));
 			return;
 		}
 		
 		// Project Name
 		String schemaName = projectPanel.getName();
-		if (schemaName.equals("")){
+		if (schemaName.equals("")) {
 			Utils.showMessage(projectPanel, Utils.getBundleString("enter_schema_name"));
 			return;
 		}
 		schemaName = validateName(schemaName);
-		if (schemaName.equals("")){
+		if (schemaName.equals("")) {
 			Utils.showError(view, "schema_valid_name");
 			return;
 		}
 		
 		// Project Title, Author and Date
 		String title = projectPanel.getTitle();
-		if (title.equals("")){
+		if (title.equals("")) {
 			Utils.showMessage(projectPanel, Utils.getBundleString("enter_schema_title"));
 			return;
 		}
 		String author = projectPanel.getAuthor();
 		String date = projectPanel.getDate();
+		
+		// Check if schema already exists
+		if (MainDao.checkSchema(schemaName)) {
+			String msg = "Project '"+schemaName+"' already exists.\nDo you want to overwrite it?";
+			int res = Utils.confirmDialog(projectPanel, msg, "Create Project");
+			if (res != 0) return; 
+			MainDao.deleteSchema(schemaName);
+		}
 		
 		// Save properties
 		MainDao.getGswProperties().put("SRID_USER", sridValue);
@@ -887,7 +901,7 @@ public class MainController{
 		view.setCursor(new Cursor(Cursor.WAIT_CURSOR));	  
 		
 		boolean status = MainDao.createSchema(software, schemaName, sridValue);	
-		if (status){
+		if (status) {
 			MainDao.setSchema(schemaName);
 			String sql = "INSERT INTO "+schemaName+".inp_project_id VALUES ('"+title+"', '"+author+"', '"+date+"')";
 			Utils.getLogger().info(sql);

@@ -301,7 +301,7 @@ public class ConfigPanel extends JPanel implements ActionListener {
 	
 	private void initConfig() throws MissingResourceException {
 
-		setLayout(new MigLayout("", "[8.00][:500px:531px][-33.00]", "[5px][:493.00px:470.00px,grow]"));
+		setLayout(new MigLayout("", "[8px:n][:500px:531px][8px:n][-33.00]", "[5px][:493.00px:470.00px,grow]"));
 
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setFont(new Font("Tahoma", Font.BOLD, 11));
