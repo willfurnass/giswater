@@ -42,7 +42,7 @@ import org.giswater.util.PropertiesMap;
 import org.giswater.util.Utils;
 
 
-public class HecRasController{
+public class HecRasController {
 
 	private MainFrame mainFrame;
 	private HecRasPanel view;
@@ -73,7 +73,7 @@ public class HecRasController{
 	}
 
     
-    private void setDefaultValues(){
+    private void setDefaultValues() {
     	
     	fileSdf = new File(gswProp.getProperty("FILE_SDF", userHomeFolder));
     	view.setFileSdf(fileSdf.getAbsolutePath());
@@ -108,20 +108,20 @@ public class HecRasController{
 	}	
 	
 	
-	public void closePanel(){
+	public void closePanel() {
 		view.getFrame().setVisible(false);
 	}
 	
 	
-	public void openDatabase(){
+	public void openDatabase() {
 		mainFrame.openDatabase();
 	}
 	
 	
-	public void isConnected(){
+	public void isConnected() {
 
 		// Check if we already are connected
-		if (MainDao.isConnected()){
+		if (MainDao.isConnected()) {
 			view.enableButtons(true);
 			view.setSchemaModel(MainDao.getSchemas("HECRAS"));
 	    	view.setSelectedSchema(MainDao.getGswProperties().get("HECRAS_SCHEMA"));			
@@ -135,9 +135,9 @@ public class HecRasController{
 	}	
 	
 	
-	public void schemaChanged(){
+	public void schemaChanged() {
 		
-		if (MainDao.isConnected()){
+		if (MainDao.isConnected()) {
 			String schemaName = view.getSelectedSchema();
 			MainDao.setSchema(schemaName);
 			checkCatalogTables(schemaName);
@@ -146,7 +146,7 @@ public class HecRasController{
 	}
 	
 	
-	private void checkCatalogTables(String schemaName){
+	private void checkCatalogTables(String schemaName) {
 		mainFrame.enableProjectId(MainDao.checkTable(schemaName, "inp_project_id"));
 		mainFrame.enableConduit(false);
 		mainFrame.enableMaterials(false);
@@ -169,9 +169,12 @@ public class HecRasController{
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             fileSdf = chooser.getSelectedFile();
             String path = fileSdf.getAbsolutePath();
-            if (path.lastIndexOf(".") == -1) {
-                path += ".sdf";
-                fileSdf = new File(path);
+            if (path != null && path.length() >= 4) {  
+                String ext = path.substring(path.length() - 4).toLowerCase();
+                if (!ext.equals(".sdf")) {
+                    path += ".sdf";
+                    fileSdf = new File(path);
+                }
             }
             view.setFileSdf(fileSdf.getAbsolutePath());            
         }
@@ -192,9 +195,12 @@ public class HecRasController{
         if (returnVal == JFileChooser.APPROVE_OPTION) {
         	fileAsc = chooser.getSelectedFile();
             String path = fileAsc.getAbsolutePath();
-            if (path.lastIndexOf(".") == -1) {
-                path += ".asc";
-                fileAsc = new File(path);
+            if (path != null && path.length() >= 4) {  
+                String ext = path.substring(path.length() - 4).toLowerCase();
+                if (!ext.equals(".asc")) {
+                    path += ".asc";
+                    fileAsc = new File(path);
+                }
             }
             view.setFileAsc(fileAsc.getAbsolutePath());            
         }
@@ -202,10 +208,10 @@ public class HecRasController{
     }    
     
 
-    private boolean getFileSdf(){
+    private boolean getFileSdf() {
     	
         String path = view.getFileSdf();
-        if (path.equals("")){
+        if (path.equals("")) {
             return false;        	
         }
         if (path.lastIndexOf(".") == -1) {
@@ -219,10 +225,10 @@ public class HecRasController{
     }
     
     
-    private boolean getFileAsc(){
+    private boolean getFileAsc() {
     	
         String path = view.getFileAsc();
-        if (path.equals("")){
+        if (path.equals("")) {
             return false;        	
         }
         if (path.lastIndexOf(".") == -1) {
@@ -237,14 +243,14 @@ public class HecRasController{
     
     
     // Clear gisras schema info    
-    public void clearData(){
+    public void clearData() {
     	    	
 		String schemaName = view.getSelectedSchema();    	
 		String msg = Utils.getBundleString("empty_schema_name") + "\n" + schemaName;
 		int res = Utils.confirmDialog(msg);  
-        if (res == 0){
+        if (res == 0) {
     		view.setCursor(new Cursor(Cursor.WAIT_CURSOR));	        	
-        	if (MainDao.clearData(schemaName)){
+        	if (MainDao.clearData(schemaName)) {
         		Utils.showMessage(view, "data_cleared");
         	}
         }    	
@@ -252,11 +258,11 @@ public class HecRasController{
     }
 
     
-	private String getUserSrid(String defaultSrid){
+	private String getUserSrid(String defaultSrid) {
 		
 		String sridValue = "";
 		Boolean sridQuestion = Boolean.parseBoolean(prop.get("SRID_QUESTION"));
-		if (sridQuestion){
+		if (sridQuestion) {
 			sridValue = JOptionPane.showInputDialog(view, Utils.getBundleString("enter_srid"), defaultSrid);
 			if (sridValue == null){
 				return "";
@@ -270,7 +276,7 @@ public class HecRasController{
 	}
 	
 	
-	private String validateName(String schemaName){
+	private String validateName(String schemaName) {
 		
 		String validate;
 		validate = schemaName.trim().toLowerCase();
@@ -281,7 +287,7 @@ public class HecRasController{
 	}
 	
 	
-	public void createSchema(){
+	public void createSchema() {
 		createSchemaAssistant();
 	}	
 	
@@ -299,16 +305,16 @@ public class HecRasController{
 	}
 	
     
-	public void createSchema(String defaultSchemaName){
+	public void createSchema(String defaultSchemaName) {
 		
 		String schemaName = defaultSchemaName;
 		if (defaultSchemaName.equals("")){
 			schemaName = JOptionPane.showInputDialog(view, Utils.getBundleString("enter_schema_name"), "schema_name");
-			if (schemaName == null){
+			if (schemaName == null) {
 				return;
 			}
 			schemaName = schemaName.trim().toLowerCase();
-			if (schemaName.equals("")){
+			if (schemaName.equals("")) {
 				Utils.showError("schema_valid_name");
 				return;
 			}
@@ -318,13 +324,13 @@ public class HecRasController{
 		String defaultSrid = prop.get("SRID_DEFAULT", "25831");		
 		String sridValue = getUserSrid(defaultSrid);
 
-		if (sridValue.equals("")){
+		if (sridValue.equals("")) {
 			return;
 		}
 		Integer srid;
 		try{
 			srid = Integer.parseInt(sridValue);
-		} catch (NumberFormatException e){
+		} catch (NumberFormatException e) {
 			Utils.showError("error_srid");
 			return;
 		}
@@ -332,7 +338,7 @@ public class HecRasController{
 		MainDao.savePropertiesFile();
 
 		boolean isSridOk = MainDao.checkSrid(srid);
-		if (!isSridOk && srid != 0){
+		if (!isSridOk && srid != 0) {
 			String msg = "SRID "+srid+" " +Utils.getBundleString("srid_not_found")+"\n" +
 				Utils.getBundleString("srid_valid");			
 			Utils.showError(msg);
@@ -340,10 +346,10 @@ public class HecRasController{
 		}
 		view.setCursor(new Cursor(Cursor.WAIT_CURSOR));		
 		boolean status = MainDao.createSchemaHecRas("hecras", schemaName, sridValue);
-		if (status && defaultSchemaName.equals("")){
+		if (status && defaultSchemaName.equals("")) {
 			Utils.showMessage(view, "schema_creation_completed");
 		}
-		else if (status && !defaultSchemaName.equals("")){
+		else if (status && !defaultSchemaName.equals("")) {
 			Utils.showMessage(view, "schema_truncate_completed");
 		}
 		view.setSchemaModel(MainDao.getSchemas("HECRAS"));	
@@ -353,12 +359,12 @@ public class HecRasController{
 	}
     
 	
-	public void deleteSchema(){
+	public void deleteSchema() {
 		
 		String schemaName = view.getSelectedSchema();
 		String msg = Utils.getBundleString("delete_schema_name") + "\n" + schemaName;
 		int res = Utils.confirmDialog(msg);        
-        if (res == 0){
+        if (res == 0) {
     		view.setCursor(new Cursor(Cursor.WAIT_CURSOR));	        	
         	MainDao.deleteSchema(schemaName);
         	view.setSchemaModel(MainDao.getSchemas("HECRAS"));
@@ -372,7 +378,7 @@ public class HecRasController{
 	}	
     
 	
-	private void initModel(ProjectPanel panel){
+	private void initModel(ProjectPanel panel) {
 		
 		this.projectPanel = panel;
         model = new TableModelSrid();
@@ -406,14 +412,14 @@ public class HecRasController{
 		String sql = "SELECT substr(srtext, 1, 6) as \"Type\", srid as \"SRID\", substr(split_part(srtext, ',', 1), 9) as \"Description\"";			
 		sql+= " FROM public.spatial_ref_sys";
 		String filter = projectPanel.getFilter();
-		if (!filter.equals("")){
+		if (!filter.equals("")) {
 			sql+= " WHERE (cast(srid as varchar) like '%"+filter+"%' OR split_part(srtext, ',', 1) like '%"+filter+"%')";
 		} 
-		if (!filterType.equals("")){
-			if (filter.equals("")){
+		if (!filterType.equals("")) {
+			if (filter.equals("")) {
 				sql+= " WHERE ";
 			}
-			else{
+			else {
 				sql+= " AND ";
 			}
 			sql+= "("+filterType+")";
@@ -428,30 +434,30 @@ public class HecRasController{
 	}
 	
 	
-	public void acceptProject(){
+	public void acceptProject() {
 		
 		// SRID
 		String sridValue = projectPanel.getSrid();
-		if (sridValue.equals("-1")){
+		if (sridValue.equals("-1")) {
 			Utils.showMessage(projectPanel, Utils.getBundleString("srid_select"));
 			return;
 		}
 		
 		// Project Name
 		String schemaName = projectPanel.getName();
-		if (schemaName.equals("")){
+		if (schemaName.equals("")) {
 			Utils.showMessage(projectPanel, Utils.getBundleString("enter_schema_name"));
 			return;
 		}
 		schemaName = validateName(schemaName);
-		if (schemaName.equals("")){
+		if (schemaName.equals("")) {
 			Utils.showError(view, "schema_valid_name");
 			return;
 		}
 		
 		// Project Title, Author and Date
 		String title = projectPanel.getTitle();
-		if (title.equals("")){
+		if (title.equals("")) {
 			Utils.showMessage(projectPanel, Utils.getBundleString("enter_schema_title"));
 			return;
 		}
@@ -466,7 +472,7 @@ public class HecRasController{
 		view.setCursor(new Cursor(Cursor.WAIT_CURSOR));	  
 		
 		boolean status = MainDao.createSchemaHecRas(software, schemaName, sridValue);	
-		if (status){
+		if (status) {
 			MainDao.setSchema(schemaName);
 			String sql = "INSERT INTO "+schemaName+".inp_project_id VALUES ('"+title+"', '"+author+"', '"+date+"')";
 			Utils.getLogger().info(sql);
@@ -488,12 +494,12 @@ public class HecRasController{
 	}
 	
 	
-	public void closeProject(){
+	public void closeProject() {
 		projectDialog.dispose();
 	}	
 	
     
-    public void loadRaster(){
+    public void loadRaster() {
     	
 		// Check ASC file is set
 		if (!getFileAsc()) {
@@ -529,10 +535,10 @@ public class HecRasController{
 		auxIn = folderIn + File.separator + fileName;
 		auxOut = fileSdf.getAbsolutePath();
 		boolean ok = Utils.copyFile(auxIn, auxOut);
-		if (!ok){
+		if (!ok) {
 			Utils.showError("sdf_error");
 		}
-		else{
+		else {
 			Utils.showMessage(view, "sdf_ok", fileSdf.getAbsolutePath());
 		}
 		
