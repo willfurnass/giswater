@@ -185,8 +185,6 @@ public class HecRasController {
     public void chooseFileAsc() {
 
         JFileChooser chooser = new JFileChooser();
-        FileFilter filter = new FileNameExtensionFilter("ASC extension file", "asc");
-        chooser.setFileFilter(filter);
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setDialogTitle(Utils.getBundleString("file_asc"));
         File file = new File(gswProp.getProperty("FILE_ASC", userHomeFolder));	
