@@ -1,50 +1,98 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project default="create_run_jar" name="Create Runnable Jar for Project giswater with libraries in sub-folder">
+<!-- <project default="create_run_jar" name="Create Runnable Jar for Project giswater with libraries in sub-folder">-->
+<project name="giswater">
 
-	<property name="version" value="1.1" />
-	<property name="dist" location="C:/folder_to_save_jar_file"/> 
+    <property name="version"        value="1.1" />
+    <property name="source.dir"     value="src"/>
+    <property name="lib.dir"        value="lib"/>
+    <property name="class.dir"      value="bin"/>
+    <property name="jar.dir"        value="dist"/>
+    <property name="jar.file"       value="${jar.dir}/${ant.project.name}-${version}.jar"/>
+    <property name="main-class"     value="org.giswater.gui.MainClass"/>
+
+    <path id="libraries.path">    
+        <fileset dir="${lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
 	
-    <target name="create_run_jar">
-        	
-        <jar destfile="${dist}/giswater.jar">
-            <manifest>
-                <attribute name="Main-Class" value="org.giswater.gui.MainClass"/>
-				<attribute name="Class-Path" value=". lib/commons-io-2.4.jar lib/commons-net-3.3.jar lib/formsrt.jar lib/gt2-main.jar lib/gt2-shapefile.jar lib/jcalendar-1.4.jar lib/miglayout15-swing.jar lib/postgresql-9.1-901.jdbc4.jar lib/sqlitejdbc-v056.jar"/>
-            </manifest>
-            <fileset dir="bin"/>
-        </jar>
-
-		<copy todir="${dist}/config">
-			<fileset dir="config/" includes="*.*" />
-		</copy>		
-		<copy todir="${dist}/epa">
-			<fileset dir="epa" />
-		</copy>		
-		<copy todir="${dist}/gis">
-			<fileset dir="gis"/>
-		</copy>		
-		<copy todir="${dist}/images">
-			<fileset dir="images/" includes="*" />
-		</copy>		
-		<copy todir="${dist}/inp">
-			<fileset dir="inp/" includes="*" />
-		</copy>		        
-        <copy todir="${dist}/legal">
-			<fileset dir="legal/" includes="*.*" />
-		</copy>	
-    	<copy todir="${dist}/lib">
-			<fileset dir="lib/" includes="*.jar" />
-		</copy>	
-        <copy todir="${dist}/samples">
-			<fileset dir="samples/" includes="*.*" />
-		</copy>	 
-    	<copy todir="${dist}/sql">
-			<fileset dir="sql/" includes="*.sql" />
-		</copy>	   
-    	<copy todir="${dist}/updates">
-    	    <fileset dir="updates"/>
-    	</copy>
-
+    <target name="clean" description="delete old files">
+        <delete dir="${class.dir}"/>
+        <delete dir="${jar.dir}"/>
     </target>
-    
+
+    <target name="compile" description="build class files" depends="clean">
+        <mkdir dir="${class.dir}"/>
+        <javac srcdir="${source.dir}" destdir="${class.dir}">
+            <classpath refid="libraries.path"/>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="${jar.dir}"/>
+        <mkdir dir="${class.dir}/${lib.dir}"/>
+        <copy todir="${class.dir}/${lib.dir}" flatten="true">
+            <path refid="libraries.path"/>
+        </copy>
+
+        <mkdir dir="${class.dir}/config"/>
+	<copy todir="${class.dir}/config">
+            <fileset dir="config/" includes="*.*" />
+        </copy>		
+
+        <mkdir dir="${class.dir}/epa"/>
+        <copy todir="${class.dir}/epa">
+            <fileset dir="epa" />
+        </copy>		
+
+        <mkdir dir="${class.dir}/gis"/>
+        <copy todir="${class.dir}/gis">
+            <fileset dir="gis"/>
+        </copy>		
+
+        <mkdir dir="${class.dir}/images"/>
+        <copy todir="${class.dir}/images">
+            <fileset dir="images/" includes="*" />
+        </copy>		
+
+        <mkdir dir="${class.dir}/inp"/>
+        <copy todir="${class.dir}/inp">
+            <fileset dir="inp/" includes="*" />
+        </copy>		        
+
+        <mkdir dir="${class.dir}/legal"/>
+        <copy todir="${class.dir}/legal">
+            <fileset dir="legal/" includes="*.*" />
+        </copy>	
+
+        <mkdir dir="${class.dir}/samples"/>
+        <copy todir="${class.dir}/samples">
+            <fileset dir="samples/" includes="*.*" />
+        </copy>	 
+
+        <mkdir dir="${class.dir}/sql"/>
+    	<copy todir="${class.dir}/sql">
+            <fileset dir="sql/" includes="*.sql" />
+        </copy>	   
+
+        <mkdir dir="${class.dir}/updates"/>
+    	<copy todir="${class.dir}/updates">
+    	    <fileset dir="updates"/>
+        </copy>
+
+        <manifestclasspath property="manifest.classpath" jarfile="${jar.file}">
+            <classpath refid="libraries.path"/>
+        </manifestclasspath>
+
+        <jar destfile="${jar.file}" basedir="${class.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${main-class}"/>
+                <attribute name="Class-Path" value="${manifest.classpath}"/>
+            </manifest>
+        </jar>  
+    </target>
+
+    <target name="run" depends="jar">
+        <java jar="${jar.file}.jar" fork="true"/>
+    </target>
 </project>
